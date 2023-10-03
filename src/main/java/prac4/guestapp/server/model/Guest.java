@@ -66,7 +66,7 @@ public class Guest {
 
     
     @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
-    @JoinColumn(name="phone_id", nullable = false)
+    @JoinColumn(name="phone_id")
     private Phone phone;
     public Phone getPhone() {
         return phone;
