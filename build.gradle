@@ -1,0 +1,36 @@
+plugins {
+	id 'java'
+	id 'application'
+	id 'org.springframework.boot' version '3.1.3'
+	id 'io.spring.dependency-management' version '1.1.3'
+}
+
+mainClassName = 'prac4.guestapp.server.ServerApplication'
+group = 'prac4.guestapp'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '17'
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation group: 'org.springframework', name: 'spring-web', version: '6.0.12'
+	implementation group: 'org.hibernate.orm', name: 'hibernate-core', version: '6.2.8.Final'
+
+
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '3.1.3'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	// runtimeOnly 'org.postgresql:postgresql'
+	implementation group: 'org.postgresql', name: 'postgresql', version: '42.6.0'
+
+	// testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+// tasks.named('test') {
+// 	useJUnitPlatform()
+// }
