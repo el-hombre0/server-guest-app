@@ -32,19 +32,19 @@ public class Guest {
     @Column(name = "email")
     private String email;
 
-    @Column(name = "phone_number")
-    private String phoneNumber;
+    // @Column(name = "phone_number")
+    // private String phoneNumber;
 
-    @Column(name = "position")
-    private String position;
+    // @Column(name = "position")
+    // private String position;
 
     public Guest(String firstName, String lastName, String email, String phoneNumber, String position) {
         super();
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.position = position;
+        // this.phoneNumber = phoneNumber;
+        // this.position = position;
     }
 
     public Guest() {
@@ -111,21 +111,21 @@ public class Guest {
         this.email = email;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
+    // public String getPhoneNumber() {
+    //     return phoneNumber;
+    // }
 
-    public void setPhoneNumber(String phone_number) {
-        this.phoneNumber = phone_number;
-    }
+    // public void setPhoneNumber(String phone_number) {
+    //     this.phoneNumber = phone_number;
+    // }
 
-    public String getPosition() {
-        return position;
-    }
+    // public String getPosition() {
+    //     return position;
+    // }
 
-    public void setPosition(String position) {
-        this.position = position;
-    }
+    // public void setPosition(String position) {
+    //     this.position = position;
+    // }
 
     
 

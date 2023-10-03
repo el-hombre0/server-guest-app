@@ -6,3 +6,7 @@ values ('stas@mail.com', 'Stas', 'Efimtsev'),
         'George',
         'TheCoolest'
     );
+insert into position (title)
+values ('Project Manager'),
+    ('Tester'),
+    ('Programmer');

@@ -18,15 +18,15 @@ public class Phone {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "guest_id")
-    private long guest_id;
+    // @Column(name = "guest_id")
+    // private long guest_id;
 
     @Column(name = "phone_number")
     private String phone_number;
 
-    public Phone(long id, long guest_id, String phone_number) {
+    public Phone(long id, String phone_number) {
         this.id = id;
-        this.guest_id = guest_id;
+        // this.guest_id = guest_id;
         this.phone_number = phone_number;
     }
 
@@ -55,13 +55,13 @@ public class Phone {
         this.id = id;
     }
 
-    public long getGuest_id() {
-        return guest_id;
-    }
+    // public long getGuest_id() {
+    //     return guest_id;
+    // }
 
-    public void setGuest_id(long guest_id) {
-        this.guest_id = guest_id;
-    }
+    // public void setGuest_id(long guest_id) {
+    //     this.guest_id = guest_id;
+    // }
 
     public String getPhone_number() {
         return phone_number;
