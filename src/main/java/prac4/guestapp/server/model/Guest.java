@@ -2,7 +2,7 @@ package prac4.guestapp.server.model;
 
 import java.util.Set;
 
-import jakarta.persistence.CascadeType;
+// import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,7 +12,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
+// import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -32,49 +33,39 @@ public class Guest {
     @Column(name = "email")
     private String email;
 
-    // @Column(name = "phone_number")
-    // private String phoneNumber;
-
-    // @Column(name = "position")
-    // private String position;
-
-    public Guest(String firstName, String lastName, String email, String phoneNumber, String position) {
+    public Guest(String firstName, String lastName, String email) {
         super();
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        // this.phoneNumber = phoneNumber;
-        // this.position = position;
     }
 
     public Guest() {
     }
 
     // Database tables relationship
+    // @ManyToMany
+    // @JoinTable(name = "guest_position", joinColumns = @JoinColumn(name = "guest_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "position_id", referencedColumnName = "id"))
+    // private Set<Position> positions;
 
-    @ManyToMany
-    @JoinTable(name = "guest_position", joinColumns = @JoinColumn(name = "guest_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "position_id", referencedColumnName = "id"))
-    private Set<Position> positions;
+    // public void setPositions(Set<Position> positions) {
+    //     this.positions = positions;
+    // }
 
-    public void setPositions(Set<Position> positions) {
-        this.positions = positions;
-    }
+    // public Set<Position> getPositions() {
+    //     return positions;
+    // }
 
-    public Set<Position> getPositions() {
-        return positions;
-    }
+    // @OneToMany()
+    // private Set<Phone> phones;
 
-    
-    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
-    @JoinColumn(name="phone_id")
-    private Phone phone;
-    public Phone getPhone() {
-        return phone;
-    }
+    // public Set<Phone> getPhones() {
+    //     return phones;
+    // }
 
-    public void setPhone(Phone phone) {
-        this.phone = phone;
-    }
+    // public void setPhones(Set<Phone> phones) {
+    //     this.phones = phones;
+    // }
 
     // Basic getters and setters
 
@@ -110,23 +101,4 @@ public class Guest {
     public void setEmail(String email) {
         this.email = email;
     }
-
-    // public String getPhoneNumber() {
-    //     return phoneNumber;
-    // }
-
-    // public void setPhoneNumber(String phone_number) {
-    //     this.phoneNumber = phone_number;
-    // }
-
-    // public String getPosition() {
-    //     return position;
-    // }
-
-    // public void setPosition(String position) {
-    //     this.position = position;
-    // }
-
-    
-
 }

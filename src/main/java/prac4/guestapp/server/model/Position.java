@@ -30,16 +30,16 @@ public class Position {
     }
 
     // Database tables relationship
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "positions")
-    private Set<Guest> guests;
+    // @ManyToMany(fetch = FetchType.EAGER, mappedBy = "positions")
+    // private Set<Guest> guests;
 
-    public Set<Guest> getGuests() {
-        return guests;
-    }
+    // public Set<Guest> getGuests() {
+    //     return guests;
+    // }
 
-    public void setGuests(Set<Guest> guests) {
-        this.guests = guests;
-    }
+    // public void setGuests(Set<Guest> guests) {
+    //     this.guests = guests;
+    // }
 
     // Basic getters and setters
     public long getId() {

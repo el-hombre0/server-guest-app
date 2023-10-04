@@ -12,11 +12,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import prac4.guestapp.server.exception.ResourceNotFoundException;
 import prac4.guestapp.server.model.Phone;
 import prac4.guestapp.server.repository.PhoneRepository;
 
+@RestController
+@RequestMapping("/api/v1")
 public class PhoneController {
     @Autowired
     private PhoneRepository phoneRepository;
@@ -39,7 +43,8 @@ public class PhoneController {
         Phone phone = phoneRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Phone does not exists with id: " + id));
         phone.setPhone_number(phoneDetails.getPhone_number());
-        phone.setGuests(phoneDetails.getGuests());
+        // phone.setGuests(phoneDetails.getGuests());
+        // phone.setGuest(phoneDetails.getGuest());
         Phone updatedPhone = phoneRepository.save(phone);
         return ResponseEntity.ok(updatedPhone);
     }

@@ -44,7 +44,7 @@ public class PositionController {
         Position position = positionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Position does not exists with id: " + id));
         position.setTitle(positionDetails.getTitle());
-        position.setGuests(positionDetails.getGuests());
+        // position.setGuests(positionDetails.getGuests());
 
         Position updatedPosition = positionRepository.save(position);
         return ResponseEntity.ok(updatedPosition);

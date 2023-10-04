@@ -47,8 +47,9 @@ public class GuestController {
         guest.setFirstName(guestDetails.getFirstName());
         guest.setLastName(guestDetails.getLastName());
         guest.setEmail(guestDetails.getEmail());
-        guest.setPhone(guestDetails.getPhone());
-        guest.setPositions(guestDetails.getPositions());
+        // guest.setPhone(guestDetails.getPhone());
+        // guest.setPhones(guestDetails.getPhones());
+        // guest.setPositions(guestDetails.getPositions());
 
         Guest updatedGuest = guestRepository.save(guest);
         return ResponseEntity.ok(updatedGuest);
