@@ -2,6 +2,7 @@ package prac4.guestapp.server.model;
 
 import java.util.Set;
 
+import jakarta.persistence.CascadeType;
 // import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 // import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -44,17 +46,30 @@ public class Guest {
     }
 
     // Database tables relationship
-    // @ManyToMany
-    // @JoinTable(name = "guest_position", joinColumns = @JoinColumn(name = "guest_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "position_id", referencedColumnName = "id"))
-    // private Set<Position> positions;
+    // @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    // @JoinColumn(name = "phone_id", nullable = false)
+    // private Phone phone;
 
-    // public void setPositions(Set<Position> positions) {
-    //     this.positions = positions;
+    // public Phone getPhone() {
+    //     return phone;
     // }
 
-    // public Set<Position> getPositions() {
-    //     return positions;
+    // public void setPhone(Phone phone) {
+    //     this.phone = phone;
     // }
+
+    //////////////////
+    @ManyToMany
+    @JoinTable(name = "guest_position", joinColumns = @JoinColumn(name = "guest_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "position_id", referencedColumnName = "id"))
+    private Set<Position> positions;
+
+    public void setPositions(Set<Position> positions) {
+        this.positions = positions;
+    }
+
+    public Set<Position> getPositions() {
+        return positions;
+    }
 
     // @OneToMany()
     // private Set<Phone> phones;
