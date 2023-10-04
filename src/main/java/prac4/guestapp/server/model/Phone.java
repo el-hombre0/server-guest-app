@@ -1,21 +1,12 @@
 package prac4.guestapp.server.model;
 
-import java.util.Set;
-
-// import java.util.Set;
-
-// import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-// import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-// import jakarta.persistence.JoinColumn;
-// import jakarta.persistence.ManyToOne;
-// import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -28,9 +19,10 @@ public class Phone {
     @Column(name = "phone_number")
     private String phone_number;
 
-    public Phone(long id, String phone_number) {
+    public Phone(long id, String phone_number, Guest guest) {
         this.id = id;
         this.phone_number = phone_number;
+        this.guest = guest;
     }
 
     public Phone() {
@@ -38,30 +30,9 @@ public class Phone {
     }
 
     // Database tables relationship
-    // @OneToMany(fetch = FetchType.EAGER, mappedBy = "phone")
-    // private Set<Guest> guests;
-
-    // public Set<Guest> getGuests() {
-    //     return guests;
-    // }
-
-    // public void setUsers(Set<Guest> guests) {
-    //     this.guests = guests;
-    // }
-
-    ///////////////////////////
-    // @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE,
-    // CascadeType.PERSIST })
-    // @JoinColumn(name = "guest_id")
-    // private Guest guest;
-
-    // public Guest getGuest() {
-    // return guest;
-    // }
-
-    // public void setGuest(Guest guest) {
-    // this.guest = guest;
-    // }
+    @ManyToOne
+    @JoinColumn(name = "guest_id")
+    private Guest guest;
 
     // Basic getters and setters
     public long getId() {

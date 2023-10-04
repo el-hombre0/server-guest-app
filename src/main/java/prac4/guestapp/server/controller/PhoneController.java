@@ -25,13 +25,13 @@ public class PhoneController {
     @Autowired
     private PhoneRepository phoneRepository;
 
-    // Get all phones
+    // Get all the phones
     @GetMapping("/phones")
     public List<Phone> getAllPhones() {
         return phoneRepository.findAll();
     }
 
-    // Create new phone
+    // Create the new phone
     @PostMapping("/phones")
     public Phone createPhone(@RequestBody Phone phone) {
         return phoneRepository.save(phone);

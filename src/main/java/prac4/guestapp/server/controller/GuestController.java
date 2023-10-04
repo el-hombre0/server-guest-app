@@ -26,20 +26,19 @@ public class GuestController {
     @Autowired
     private GuestRepository guestRepository;
 
-    // get all guests
-
+    // Get all the guests
     @GetMapping("/guests")
     public List<Guest> getAllGuests() {
         return guestRepository.findAll();
     }
 
-    // create guest
+    // Create the guest
     @PostMapping("/guests")
     public Guest createGuest(@RequestBody Guest guest) {
         return guestRepository.save(guest);
     }
 
-    // Update guest
+    // Update the guest
     @PutMapping("/guests/{id}")
     public ResponseEntity<Guest> updateGuest(@PathVariable Long id, @RequestBody Guest guestDetails) {
         Guest guest = guestRepository.findById(id)
@@ -47,9 +46,7 @@ public class GuestController {
         guest.setFirstName(guestDetails.getFirstName());
         guest.setLastName(guestDetails.getLastName());
         guest.setEmail(guestDetails.getEmail());
-        // guest.setPhone(guestDetails.getPhone());
-        // guest.setPhones(guestDetails.getPhones());
-        // guest.setPositions(guestDetails.getPositions());
+        guest.setPhones(guestDetails.getPhones());
 
         Guest updatedGuest = guestRepository.save(guest);
         return ResponseEntity.ok(updatedGuest);

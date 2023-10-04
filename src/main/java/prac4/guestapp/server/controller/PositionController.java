@@ -25,20 +25,19 @@ public class PositionController {
     @Autowired
     private PositionRepository positionRepository;
 
-    // Get all positions
-
+    // Get all the positions
     @GetMapping("/positions")
     public List<Position> getAllPositions() {
         return positionRepository.findAll();
     }
 
-    // create guest
+    // Create the new position
     @PostMapping("/positions")
     public Position createPosition(@RequestBody Position position) {
         return positionRepository.save(position);
     }
 
-    // Update guest
+    // Update the position
     @PutMapping("/positions/{id}")
     public ResponseEntity<Position> updatePosition(@PathVariable Long id, @RequestBody Position positionDetails) {
         Position position = positionRepository.findById(id)
@@ -50,7 +49,7 @@ public class PositionController {
         return ResponseEntity.ok(updatedPosition);
     }
 
-    // Delete the guest
+    // Delete the position
     @DeleteMapping("/positions/{id}")
     public ResponseEntity<Map<String, Boolean>> deleteGuest(@PathVariable Long id) {
         Position position = positionRepository.findById(id)

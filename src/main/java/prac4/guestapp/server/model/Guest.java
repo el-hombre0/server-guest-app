@@ -1,20 +1,18 @@
 package prac4.guestapp.server.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import jakarta.persistence.CascadeType;
-// import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
-// import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -46,19 +44,17 @@ public class Guest {
     }
 
     // Database tables relationship
-    // @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
-    // @JoinColumn(name = "phone_id", nullable = false)
-    // private Phone phone;
+    @OneToMany(mappedBy = "guest", cascade = CascadeType.MERGE, orphanRemoval = true)
+    private List<Phone> phones = new ArrayList<>();
 
-    // public Phone getPhone() {
-    //     return phone;
-    // }
+    public List<Phone> getPhones() {
+        return phones;
+    }
 
-    // public void setPhone(Phone phone) {
-    //     this.phone = phone;
-    // }
+    public void setPhones(List<Phone> phones) {
+        this.phones = phones;
+    }
 
-    //////////////////
     @ManyToMany
     @JoinTable(name = "guest_position", joinColumns = @JoinColumn(name = "guest_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "position_id", referencedColumnName = "id"))
     private Set<Position> positions;
@@ -70,17 +66,6 @@ public class Guest {
     public Set<Position> getPositions() {
         return positions;
     }
-
-    // @OneToMany()
-    // private Set<Phone> phones;
-
-    // public Set<Phone> getPhones() {
-    //     return phones;
-    // }
-
-    // public void setPhones(Set<Phone> phones) {
-    //     this.phones = phones;
-    // }
 
     // Basic getters and setters
 
@@ -116,4 +101,5 @@ public class Guest {
     public void setEmail(String email) {
         this.email = email;
     }
+
 }

@@ -2,6 +2,8 @@ package prac4.guestapp.server.model;
 
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -30,6 +32,7 @@ public class Position {
     }
 
     // Database tables relationship
+    @JsonIgnore
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "positions")
     private Set<Guest> guests;
 
