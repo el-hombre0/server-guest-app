@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import java.io.*;
+import java.net.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,12 +31,32 @@ public class PositionController {
     // Get all the positions
     @GetMapping("/positions")
     public List<Position> getAllPositions() {
+        try {
+            Socket socket = new Socket("graylog", 5555);
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+            out.writeUTF("[POSTGRES] GET ALL POSITIONS");
+            out.close();
+            socket.close();
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+
         return positionRepository.findAll();
     }
 
     // Create the new position
     @PostMapping("/positions")
     public Position createPosition(@RequestBody Position position) {
+        try {
+            Socket socket = new Socket("graylog", 5555);
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+            out.writeUTF("[POSTGRES] CREATE NEW POSITION");
+            out.close();
+            socket.close();
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+
         return positionRepository.save(position);
     }
 
@@ -46,6 +69,17 @@ public class PositionController {
         // position.setGuests(positionDetails.getGuests());
 
         Position updatedPosition = positionRepository.save(position);
+
+        try {
+            Socket socket = new Socket("graylog", 5555);
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+            out.writeUTF("[POSTGRES] UPDATE POSITION");
+            out.close();
+            socket.close();
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+
         return ResponseEntity.ok(updatedPosition);
     }
 
@@ -57,6 +91,17 @@ public class PositionController {
         positionRepository.delete(position);
         Map<String, Boolean> response = new HashMap<>();
         response.put("deleted", Boolean.TRUE);
+
+        try {
+            Socket socket = new Socket("graylog", 5555);
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+            out.writeUTF("[POSTGRES] DELETE POSITION");
+            out.close();
+            socket.close();
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+
         return ResponseEntity.ok(response);
     }
 }

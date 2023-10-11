@@ -1,0 +1,500 @@
+= {blank}
+:author: Max A.Jurankov
+:revnumber: 1.0
+:revdate: {docdate}
+:doctype: book
+:notitle:
+:front-cover-image: image:title/prac4_title.pdf[]
+:lang: ru,en
+:docinfo:
+:pagenums:
+:icons: font
+:pdf-page-size: A4
+:toc: macro
+:toclevels: 3
+:toc-title: СОДЕРЖАНИЕ
+:pdf-theme: theme.yml
+:pdf-fontsdir: fonts
+:figure-caption: Рисунок
+:listing-caption: Листинг
+:table-caption: Таблица
+
+toc::[]
+
+== ЦЕЛЬ РАБОТЫ
+
+Необходимо получить навыки работы с docker-compose и образами Docker.
+В работе должны быть отражены все пункты создания dockercompose файла, 
+проверена работоспособность сервиса и систем
+мониторинга. Произведена нагрузка на систему с целью проверки
+работоспособности. Все пункты должны быть отражены в отчете в формате
+снимков экрана.
+
+== РАЗРАБОТКА ПРИЛОЖЕНИЯ
+
+Для выполнения задания практической работы необходимо разработать приложение, 
+поддерживающее CRUD операции, с помощью фреймворка Spring Boot.
+
+Начать необходимо с проектирования базы данных. По условию задачи она должна иметь 
+минимум 3 сущности, связь 1-N и связь N-N. На рисунке 1 представлена ER диаграмма
+спроектированной базы данных.
+
+.ER диаграмма базы данных
+image::img/erd.png[caption="Рисунок 1 - "]
+
+Листинги 1-3 демонстрируют созданные модели ранее спроектированных сущностей.
+
+.Сущность Guest
+[source,java,caption="Листинг 1 - "]
+----
+@Entity
+@Table(name = "guest")
+public class Guest {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    @Column(name = "first_name")
+    private String firstName;
+
+    @Column(name = "last_name")
+    private String lastName;
+
+    @Column(name = "email")
+    private String email;
+
+    // Database tables relationship
+    @OneToMany(mappedBy = "guest", cascade = CascadeType.MERGE, orphanRemoval = true)
+    private List<Phone> phones = new ArrayList<>();
+
+    // ...
+}
+----
+
+.Сущность Phone
+[source,java,caption="Листинг 2 - "]
+----
+@Entity
+@Table(name = "phone")
+public class Phone {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    @Column(name = "phone_number")
+    private String phone_number;
+
+    // Database tables relationship
+    @ManyToOne
+    @JoinColumn(name = "guest_id")
+    private Guest guest;
+
+    // ...
+}
+----
+
+.Сущность Position
+[source,java,caption="Листинг 3 - "]
+----
+@Entity
+@Table(name = "position")
+public class Position {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    @Column(name = "title")
+    private String title;
+
+    // Database tables relationship
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "positions")
+    private Set<Guest> guests;
+
+    // ...
+}
+----
+
+Далее были разработаны контроллеры REST API. Для каждой сущности 
+создан контроллер, поддерживающий CRUD операции. В листинге 4 ниже приведён 
+исходный код контроллера, предоставляющего доступ к сущности Guest.
+
+.Контроллер GuestController
+[source,java,caption="Листинг 4 - "]
+----
+@RestController
+@RequestMapping("/api/v1")
+public class GuestController {
+
+    @Autowired
+    private GuestRepository guestRepository;
+
+    // Get all the guests
+    @GetMapping("/guests")
+    public List<Guest> getAllGuests() {
+        try {
+            Socket socket = new Socket("graylog", 5555);
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+            out.writeUTF("[POSTGRES] GET ALL GUESTS");
+            out.close();
+            socket.close();
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+
+        return guestRepository.findAll();
+    }
+
+    // Create the guest
+    @PostMapping("/guests")
+    public Guest createGuest(@RequestBody Guest guest) {
+        try {
+            Socket socket = new Socket("graylog", 5555);
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+            out.writeUTF("[POSTGRES] CREATE NEW GUEST");
+            out.close();
+            socket.close();
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+
+        return guestRepository.save(guest);
+    }
+
+    // Update the guest
+    @PutMapping("/guests/{id}")
+    public ResponseEntity<Guest> updateGuest(@PathVariable Long id, @RequestBody Guest guestDetails) {
+        Guest guest = guestRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Guest does not exists with id: " + id));
+        guest.setFirstName(guestDetails.getFirstName());
+        guest.setLastName(guestDetails.getLastName());
+        guest.setEmail(guestDetails.getEmail());
+        guest.setPhones(guestDetails.getPhones());
+
+        Guest updatedGuest = guestRepository.save(guest);
+        
+        try {
+            Socket socket = new Socket("graylog", 5555);
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+            out.writeUTF("[POSTGRES] UPDATE GUEST");
+            out.close();
+            socket.close();
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+
+        return ResponseEntity.ok(updatedGuest);
+    }
+
+    // Delete the guest
+    @DeleteMapping("/guests/{id}")
+    public ResponseEntity<Map<String, Boolean>> deleteGuest(@PathVariable Long id) {
+        Guest guest = guestRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                    "Guest does not exists with id: " + id));
+        guestRepository.delete(guest);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("deleted", Boolean.TRUE);
+
+        try {
+            Socket socket = new Socket("graylog", 5555);
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+            out.writeUTF("[POSTGRES] DELETE GUEST");
+            out.close();
+            socket.close();
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+
+        return ResponseEntity.ok(response);
+    }
+}
+----
+
+Последним шагом в разработке приложения является написание конфигурации для 
+подключения к базе данных. Содержимое файла application.properties приведено 
+в листинге 5.
+
+.Файл application.properties
+[source,caption="Листинг 5 - "]
+----
+spring.datasource.url=jdbc:postgresql://database:5432/db
+spring.datasource.username=postgres
+spring.datasource.password=none
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+----
+
+== СОЗДАНИЕ СИСТЕМЫ КОНТЕЙНЕРОВ
+
+Далее необходимо создать систему мониторинга, состоящую из множества контейнеров.
+Для этого следует запустить Adminer, Graylog, Zabbix, Prometheus, PostgreSQL.
+Рассмотрим ниже детально принцип развёртывания каждого сервиса.
+
+=== Spring приложение
+
+Чтобы выполнить развёртывание Spring приложения достаточно пробросить порт 8080.
+Исходный код приведён в листинге 6.
+
+.Сервис app
+[source,yaml,caption="Листинг 6 - "]
+----
+app:
+    build: ./server-guest-app/
+    ports:
+      - 8080:8080
+----
+
+=== СУБД PostgreSQL и Adminer
+
+Необходимо задать пароль по-умолчанию и базу данных для приложения.
+Adminer не зависит от базы данных, для него достаточно пробросить порт.
+Исходный код приведён в листинге 7.
+
+.Сервис database
+[source,yaml,caption="Листинг 7 - "]
+----
+database:
+    image: postgres:15.4-alpine3.18
+    environment:
+      POSTGRES_PASSWORD: none
+      POSTGRES_DB: db
+adminer:
+    image: adminer:latest
+    ports:
+      - 8000:8080
+----
+
+Демонстрация запущенной СУБД и Adminer представлена на рисунке 1.
+
+.Работа СУБД PostgreSQL и Adminer
+image::img/postgres_adminer.png[caption="Рисунок 2 - "]
+
+=== Zabbix
+
+Далее выполним развёртывание системы мониторинга Zabbix.
+Система состоит из 3-х сервисов:
+
+1. _zabbix-server_: сервер мониторинга, получающий данные с PostgreSQL
+2. _zabbix-web_: клиентское приложение, получающее данные с сервера
+3. _zabbix_agent_: необходим серверу для сбора данных о системе.
+
+Исходный код приведён в листинге 8.
+
+.Сервис zabbix
+[source,yaml,caption="Листинг 8 - "]
+----
+zabbix-server:
+    image: zabbix/zabbix-server-pgsql:alpine-6.2-latest
+    environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: none
+        DB_SERVER_HOST: database
+        DB_SERVER_PORT: 5432
+        ZBX_ENABLE_SNMP_TRAPS: true
+  
+zabbix-web:
+    image: zabbix/zabbix-web-nginx-pgsql:alpine-6.2-latest
+    ports:
+        - 8001:8080
+    environment:
+        ZBX_SERVER_HOST: zabbix-server
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: none
+        DB_SERVER_HOST: database
+        DB_SERVER_PORT: 5432
+  
+zabbix-agent:
+    image: zabbix/zabbix-agent2:alpine-6.2-latest
+    environment:
+        ZBX_HOSTNAME: localhost
+        ZBX_SERVER_HOST: zabbix-server
+    privileged: true
+----
+
+Запущенный сервис zabbix-web представлен на рисунке 3.
+
+.Сервис zabbix-web
+image::img/zabbix.png[caption="Рисунок 3 - "]
+
+=== Grafana и Prometheus
+
+Выполним развёртывание сервиса Prometheus. Он необходим также для сбора данных 
+с СУБД PostgreSQL. Чтобы выгружать данные из PostgreSQL необходим сервис postgres-exporter.
+Исходный код приведён в листинге 9.
+
+.Сервис prometheus
+[source,yaml,caption="Листинг 9 - "]
+----
+grafana:
+    image: grafana/grafana
+    ports:
+        - 8002:3000
+  
+prometheus:
+    image: prom/prometheus
+    ports:
+        - 8003:9090
+    volumes:
+        - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+  
+postgres-exporter:
+    image: prometheuscommunity/postgres-exporter
+    environment:
+        DATA_SOURCE_NAME: "postgresql://postgres:none@database:5432/?sslmode=disable"
+----
+
+Импортируем уже существующую конфигурацию, чтобы создать новый dashboard.
+Результат представлен на рисунке 4.
+
+.Импорт конфигурации в grafana
+image::img/grafana_import.png[caption="Рисунок 4 - "]
+
+Далее добавим несколько записей в базу данных, чтобы увидеть изменения в dashboard.
+Процесс мониторинга PostgreSQL и отображение в Grafana представлен на рисунках 5 и 6.
+
+.Мониторинг и отображение в Grafana
+image::img/grafana_1.png[caption="Рисунок 5 - "]
+
+.Мониторинг и отображение в Grafana (продолжение)
+image::img/grafana_2.png[caption="Рисунок 6 - "]
+
+=== Graylog
+
+Теперь выполним развёртывание системы логирования Graylog. Он поддерживает 
+несколько различных вариантов сбора данных. Но всех их объединяет один факт -
+данные отправляет приложение. Созданное нами ранее Spring приложение после 
+каждого взаимодействия с базой данных будет отправлять информацию на сервер
+Graylog.
+
+Для работы Graylog необходимо также настроить MongoDB (в ней Graylog сохраняет данные)
+и elasticsearch. Исходный код приведён в листинге 10.
+
+.Сервис Graylog
+[source,yaml,caption="Листинг 10 - "]
+----
+mongodb:
+    image: mongo:latest
+opensearch:
+    image: "opensearchproject/opensearch:2.4.0"
+    environment:
+        - "OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g"
+        - "bootstrap.memory_lock=true"
+        - "discovery.type=single-node"
+        - "action.auto_create_index=false"
+        - "plugins.security.ssl.http.enabled=false"
+        - "plugins.security.disabled=true"
+    ulimits:
+        memlock:
+        hard: -1
+        soft: -1
+        nofile:
+        soft: 65536
+        hard: 65536
+    restart: "on-failure"
+graylog:
+    image: graylog/graylog:5.1
+    depends_on:
+        opensearch:
+        condition: "service_started"
+        mongodb:
+        condition: "service_started"
+    entrypoint: "/usr/bin/tini -- wait-for-it opensearch:9200 -- /docker-entrypoint.sh"
+    environment:
+        GRAYLOG_NODE_ID_FILE: "/usr/share/graylog/data/config/node-id"
+        GRAYLOG_PASSWORD_SECRET: "qwertyuiop1234567890"
+        GRAYLOG_ROOT_PASSWORD_SHA2: "e1b24204830484d635d744e849441b793a6f7e1032ea1eef40747d95d30da592"
+        GRAYLOG_HTTP_BIND_ADDRESS: "0.0.0.0:9000"
+        GRAYLOG_HTTP_EXTERNAL_URI: "http://localhost:9000/"
+        GRAYLOG_ELASTICSEARCH_HOSTS: "http://opensearch:9200"
+        GRAYLOG_MONGODB_URI: "mongodb://mongodb:27017/graylog"
+        GRAYLOG_REPORT_DISABLE_SANDBOX: "true"
+    ports:
+        - 9000:9000
+----
+
+Запустим систему и сделаем несколько запросов к базе данных через Spring приложение.
+Чтобы получать данные необходимо создать Input. На рисунке 7 продемонстрировано 
+создание Input.
+
+.Создание Graylog Input
+image::img/graylog_input.png[caption="Рисунок 7 - "]
+
+После выполнения запросов попробуем получить отправленные данные, нажав на кнопку 
+"Show received messages". Результат представлен на рисунке 8.
+
+.Получение данных в Graylog
+image::img/graylog_data.png[caption="Рисунок 8 - "]
+
+Также теперь можно получить данные в формате .csv. Результат представлен на рисунке 9.
+
+.Получение данных из Graylog в формате .csv
+image::img/graylog_csv.png[caption="Рисунок 9 - "]
+
+== ВЫВОД
+
+В результате выполнения данной практической работы были получены навыки и умения 
+работы с docker-compose и образами Docker. Были изучены различные системы 
+мониторинга, такие как Zabbix, Adminer, Prometheus, Graylog. Также были получены 
+навыки конфигурирования системы сервисов в целом.
+
+== ОТВЕТЫ НА ВОПРОСЫ
+
+*Вопрос 1*
+
+Prometheus — это инструмент со встроенными функциями, поэтому пользователям 
+не нужно устанавливать различные плагины или демоны для сбора показателей.
+Zabbix разделён на две большие части: сервер и агенты. Сервер расположен на 
+одной машине, которая собирает и хранит статистические данные. Агенты расположены 
+на тех машинах, с которых собираются данные. Prometheus хранит данные в собственной 
+базе данных временных рядов (TSDB). Zabbix использует внешнюю базу данных для 
+хранения инфы. БД Zabbix нужно создавать во время его установки. На данный момент 
+поддерживаются: MySQL, PostgreSQL, Oracle, IBM DB2 и SQLite. У Prometheus есть Expression 
+Browser, простой, но полезный инструмент визуализации. У браузера нет функций полноценной 
+панели мониторинга. Его используют для выполнения подробных запросов к сохранённым метрикам.
+У Zabbix есть собственный веб-интерфейс, в котором есть панель управления с гибкими 
+настройками. Не нужно ничего устанавливать или настраивать. Веб-интерфейс Zabbix
+предоставляет несколько вариантов: панели мониторинга на основе виджетов, графики, 
+сетевые карты, слайд-шоу, детализированные отчеты. Чтобы управлять оповещениями с 
+помощью Prometheus, необходим Alertmanager. У Zabbix есть встроенная функция оповещения. 
+Zabbix информирует о возникновении проблем, используя различные каналы и опции.
+
+*Вопрос 2*
+
+Необходимо в одном docker-compose файле создать 2 сервиса с различными именами, 
+реализующими образ PostgreSQL, а также установить разные порты. Пример:
+
+*Вопрос 3*
+
+Виды систем мониторинга:
+
+1. Мониторинг производительности сервера в режиме реального времени;
+2. Мониторинг производительности сети;
+3. Мониторинг контейнеров (Docker, Kubernetes, Mesos и пр.);
+4. Мониторинг инфраструктуры облака (публичного и частного);
+5. Мониторинг приложений.
+
+*Вопрос 4*
+
+Конфигурационные переменные передаются через указание переменных среды с помощью 
+ключевого слова ENV.
+
+*Вопрос 5*
+
+Docker Swarm — встроенный инструмент Docker, используемый для организации кластеризации 
+и планирования контейнеров. Разработчики и системные администраторы с его помощью могут 
+легко собрать несколько узлов в единую виртуальную систему Docker и управлять ею.
+Docker Compose используется для одновременного управления несколькими контейнерами, 
+входящими в состав приложения. Этот инструмент предлагает те же возможности, что и Docker, 
+но позволяет работать с более сложными приложениями.
+
+*Вопрос 6*
+
+Без сборки Docker образа невозможно развернуть ни одно пользовательское приложение, потому что 
+оно требует копирования исходного кода приложения для последующей сборки или как минимум 
+наличие исполняемого файла приложения. Сборка при запуске контейнера не всегда может 
+быть осуществима.

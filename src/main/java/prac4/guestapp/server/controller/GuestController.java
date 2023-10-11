@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import java.io.*;
+import java.net.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,12 +32,32 @@ public class GuestController {
     // Get all the guests
     @GetMapping("/guests")
     public List<Guest> getAllGuests() {
+        try {
+            Socket socket = new Socket("graylog", 5555);
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+            out.writeUTF("[POSTGRES] GET ALL GUESTS");
+            out.close();
+            socket.close();
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+
         return guestRepository.findAll();
     }
 
     // Create the guest
     @PostMapping("/guests")
     public Guest createGuest(@RequestBody Guest guest) {
+        try {
+            Socket socket = new Socket("graylog", 5555);
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+            out.writeUTF("[POSTGRES] CREATE NEW GUEST");
+            out.close();
+            socket.close();
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+
         return guestRepository.save(guest);
     }
 
@@ -49,6 +72,17 @@ public class GuestController {
         guest.setPhones(guestDetails.getPhones());
 
         Guest updatedGuest = guestRepository.save(guest);
+        
+        try {
+            Socket socket = new Socket("graylog", 5555);
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+            out.writeUTF("[POSTGRES] UPDATE GUEST");
+            out.close();
+            socket.close();
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+
         return ResponseEntity.ok(updatedGuest);
     }
 
@@ -60,6 +94,17 @@ public class GuestController {
         guestRepository.delete(guest);
         Map<String, Boolean> response = new HashMap<>();
         response.put("deleted", Boolean.TRUE);
+
+        try {
+            Socket socket = new Socket("graylog", 5555);
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+            out.writeUTF("[POSTGRES] DELETE GUEST");
+            out.close();
+            socket.close();
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+
         return ResponseEntity.ok(response);
     }
 }
