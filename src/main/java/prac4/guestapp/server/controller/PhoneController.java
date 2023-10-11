@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import java.io.*;
+import java.net.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,12 +31,32 @@ public class PhoneController {
     // Get all the phones
     @GetMapping("/phones")
     public List<Phone> getAllPhones() {
+        try {
+            Socket socket = new Socket("graylog", 5555);
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+            out.writeUTF("[POSTGRES] GET ALL PHONES");
+            out.close();
+            socket.close();
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+
         return phoneRepository.findAll();
     }
 
     // Create the new phone
     @PostMapping("/phones")
     public Phone createPhone(@RequestBody Phone phone) {
+        try {
+            Socket socket = new Socket("graylog", 5555);
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+            out.writeUTF("[POSTGRES] CREATE NEW PHONE");
+            out.close();
+            socket.close();
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+
         return phoneRepository.save(phone);
     }
 
@@ -46,6 +69,17 @@ public class PhoneController {
         // phone.setGuests(phoneDetails.getGuests());
         // phone.setGuest(phoneDetails.getGuest());
         Phone updatedPhone = phoneRepository.save(phone);
+
+        try {
+            Socket socket = new Socket("graylog", 5555);
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+            out.writeUTF("[POSTGRES] UPDATE PHONE");
+            out.close();
+            socket.close();
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+
         return ResponseEntity.ok(updatedPhone);
     }
 
@@ -57,6 +91,17 @@ public class PhoneController {
         phoneRepository.delete(phone);
         Map<String, Boolean> response = new HashMap<>();
         response.put("deleted", Boolean.TRUE);
+
+        try {
+            Socket socket = new Socket("graylog", 5555);
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+            out.writeUTF("[POSTGRES] DELETE PHONE");
+            out.close();
+            socket.close();
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+
         return ResponseEntity.ok(response);
     }
 }
